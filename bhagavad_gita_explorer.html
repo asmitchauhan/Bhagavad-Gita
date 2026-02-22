@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bhagavad Gita Explorer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --saffron: #ff6b00;
+        --deep-gold: #c8860a;
+        --cream: #fdf6e3;
+        --dark-brown: #2c1a0e;
+        --mid-brown: #5c3317;
+        --light-gold: #f2c94c;
+        --parchment: #efe0be;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Crimson Pro", serif;
+        background: var(--dark-brown);
+        color: var(--cream);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Decorative mandala background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(
+          circle,
+          rgba(200, 134, 10, 0.06) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .mandala-ring {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+        border: 1px solid rgba(200, 134, 10, 0.08);
+      }
+      .ring1 {
+        width: 300px;
+        height: 300px;
+      }
+      .ring2 {
+        width: 500px;
+        height: 500px;
+        border-style: dashed;
+      }
+      .ring3 {
+        width: 700px;
+        height: 700px;
+      }
+      .ring4 {
+        width: 900px;
+        height: 900px;
+        border-style: dotted;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        margin-bottom: 50px;
+        animation: fadeDown 0.8s ease both;
+      }
+
+      .om-symbol {
+        font-size: 3rem;
+        color: var(--saffron);
+        display: block;
+        margin-bottom: 8px;
+        animation: pulse 3s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(1.05);
+        }
+      }
+
+      h1 {
+        font-family: "Cinzel Decorative", serif;
+        font-size: clamp(1.4rem, 4vw, 2.4rem);
+        color: var(--light-gold);
+        letter-spacing: 0.05em;
+        line-height: 1.3;
+        text-shadow: 0 0 30px rgba(242, 201, 76, 0.3);
+      }
+
+      .subtitle {
+        font-style: italic;
+        color: var(--parchment);
+        font-size: 1.1rem;
+        margin-top: 10px;
+        opacity: 0.7;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 20px auto;
+        max-width: 400px;
+        justify-content: center;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--deep-gold));
+      }
+      .divider::after {
+        background: linear-gradient(to left, transparent, var(--deep-gold));
+      }
+      .divider span {
+        color: var(--saffron);
+        font-size: 1.2rem;
+      }
+
+      /* Step Indicator */
+      .steps {
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 40px;
+        animation: fadeUp 0.8s 0.2s ease both;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: color 0.4s;
+      }
+
+      .step.active {
+        color: var(--light-gold);
+      }
+      .step.done {
+        color: var(--saffron);
+      }
+
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid currentColor;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.75rem;
+        transition: all 0.4s;
+      }
+
+      .step.active .step-num {
+        background: var(--saffron);
+        border-color: var(--saffron);
+        color: white;
+        box-shadow: 0 0 12px rgba(255, 107, 0, 0.5);
+      }
+
+      .step.done .step-num {
+        background: var(--deep-gold);
+        border-color: var(--deep-gold);
+        color: white;
+      }
+
+      .step-connector {
+        width: 40px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.15);
+        margin: 0 6px;
+      }
+
+      /* Cards */
+      .card {
+        background: rgba(44, 26, 14, 0.7);
+        border: 1px solid rgba(200, 134, 10, 0.25);
+        border-radius: 4px;
+        padding: 32px;
+        backdrop-filter: blur(4px);
+        box-shadow:
+          0 8px 40px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(242, 201, 76, 0.1);
+        animation: fadeUp 0.5s ease both;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card-title {
+        font-family: "Cinzel Decorative", serif;
+        color: var(--saffron);
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(200, 134, 10, 0.3);
+      }
+
+      /* Chapter Grid */
+      .chapter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+      }
+
+      .chapter-btn {
+        background: rgba(92, 51, 23, 0.3);
+        border: 1px solid rgba(200, 134, 10, 0.2);
+        border-radius: 3px;
+        padding: 12px 10px;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-align: left;
+        color: var(--cream);
+        font-family: "Crimson Pro", serif;
+      }
+
+      .chapter-btn:hover {
+        background: rgba(255, 107, 0, 0.12);
+        border-color: var(--saffron);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(255, 107, 0, 0.15);
+      }
+
+      .chapter-btn.selected {
+        background: rgba(255, 107, 0, 0.18);
+        border-color: var(--saffron);
+        box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+      }
+
+      .ch-num {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.7rem;
+        color: var(--saffron);
+        letter-spacing: 0.1em;
+      }
+
+      .ch-name {
+        font-size: 0.95rem;
+        margin-top: 3px;
+        line-height: 1.3;
+        color: var(--light-gold);
+      }
+
+      .ch-verses {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 4px;
+        font-style: italic;
+      }
+
+      /* Verse Selector */
+      .verse-area {
+        display: none;
+        margin-top: 24px;
+      }
+      .verse-area.visible {
+        display: block;
+        animation: fadeUp 0.4s ease both;
+      }
+
+      .selected-chapter-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding: 14px 18px;
+        background: rgba(255, 107, 0, 0.08);
+        border-left: 3px solid var(--saffron);
+        border-radius: 0 3px 3px 0;
+      }
+
+      .sel-ch-num {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 1.8rem;
+        color: var(--saffron);
+        line-height: 1;
+        opacity: 0.6;
+      }
+
+      .sel-ch-details h3 {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.9rem;
+        color: var(--light-gold);
+      }
+
+      .sel-ch-details p {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-style: italic;
+      }
+
+      .verse-label {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .verse-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .verse-btn {
+        width: 44px;
+        height: 44px;
+        background: rgba(92, 51, 23, 0.3);
+        border: 1px solid rgba(200, 134, 10, 0.2);
+        border-radius: 3px;
+        cursor: pointer;
+        font-family: "Crimson Pro", serif;
+        font-size: 1rem;
+        color: var(--parchment);
+        transition: all 0.2s;
+      }
+
+      .verse-btn:hover {
+        background: rgba(255, 107, 0, 0.15);
+        border-color: var(--saffron);
+        color: var(--light-gold);
+      }
+
+      .verse-btn.selected {
+        background: var(--saffron);
+        border-color: var(--saffron);
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 0 12px rgba(255, 107, 0, 0.4);
+      }
+
+      /* Result */
+      .result-area {
+        display: none;
+        margin-top: 24px;
+      }
+      .result-area.visible {
+        display: block;
+        animation: fadeUp 0.5s ease both;
+      }
+
+      .result-card {
+        background: linear-gradient(
+          135deg,
+          rgba(92, 51, 23, 0.5) 0%,
+          rgba(44, 26, 14, 0.8) 100%
+        );
+        border: 1px solid rgba(200, 134, 10, 0.35);
+        border-radius: 4px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-card::before {
+        content: '"';
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        font-size: 8rem;
+        color: rgba(255, 107, 0, 0.07);
+        font-family: "Cinzel Decorative", serif;
+        line-height: 1;
+      }
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 107, 0, 0.15);
+        border: 1px solid rgba(255, 107, 0, 0.3);
+        padding: 6px 14px;
+        border-radius: 20px;
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--saffron);
+        animation: pulse 2s infinite;
+      }
+
+      .badge-text {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.72rem;
+        color: var(--light-gold);
+        letter-spacing: 0.1em;
+      }
+
+      .result-hindi {
+        font-size: 1.5rem;
+        color: var(--light-gold);
+        margin-bottom: 6px;
+        letter-spacing: 0.02em;
+      }
+
+      .result-transliterated {
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+
+      .result-meaning-label {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.65rem;
+        color: var(--saffron);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        opacity: 0.8;
+      }
+
+      .result-meaning {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-style: italic;
+        margin-bottom: 24px;
+      }
+
+      .summary-box {
+        border-top: 1px solid rgba(200, 134, 10, 0.2);
+        padding-top: 20px;
+      }
+
+      .summary-text {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: var(--parchment);
+        opacity: 0.85;
+      }
+
+      /* Action buttons */
+      .action-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Cinzel Decorative", serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 10px 20px;
+        border-radius: 3px;
+        cursor: pointer;
+        border: 1px solid;
+        transition: all 0.25s;
+      }
+
+      .btn-primary {
+        background: var(--saffron);
+        border-color: var(--saffron);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #e55e00;
+        box-shadow: 0 4px 16px rgba(255, 107, 0, 0.35);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        border-color: rgba(200, 134, 10, 0.4);
+        color: var(--light-gold);
+      }
+      .btn-ghost:hover {
+        border-color: var(--light-gold);
+        background: rgba(242, 201, 76, 0.08);
+      }
+
+      /* Verse input alternative */
+      .verse-input-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+
+      .verse-input {
+        background: rgba(44, 26, 14, 0.8);
+        border: 1px solid rgba(200, 134, 10, 0.3);
+        border-radius: 3px;
+        padding: 10px 16px;
+        color: var(--cream);
+        font-family: "Crimson Pro", serif;
+        font-size: 1rem;
+        width: 100px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .verse-input:focus {
+        border-color: var(--saffron);
+      }
+      .verse-input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+      }
+
+      .error-msg {
+        color: #ff6b6b;
+        font-size: 0.85rem;
+        font-style: italic;
+        display: none;
+      }
+      .error-msg.visible {
+        display: block;
+      }
+
+      /* No verses note */
+      .api-note {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.35);
+        font-style: italic;
+        margin-top: 12px;
+        text-align: center;
+      }
+
+      .verse-placeholder {
+        padding: 24px;
+        text-align: center;
+        border: 1px dashed rgba(200, 134, 10, 0.2);
+        border-radius: 4px;
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.95rem;
+      }
+
+      /* Loading spinner */
+      .spinner {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: var(--saffron);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 500px) {
+        .chapter-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .card {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mandala-ring ring1"></div>
+    <div class="mandala-ring ring2"></div>
+    <div class="mandala-ring ring3"></div>
+    <div class="mandala-ring ring4"></div>
+
+    <div class="container">
+      <header>
+        <span class="om-symbol">ॐ</span>
+        <h1>Bhagavad Gita</h1>
+        <p class="subtitle">The Song of the Divine</p>
+        <div class="divider"><span>✦</span></div>
+      </header>
+
+      <!-- Step Indicator -->
+      <div class="steps">
+        <div class="step active" id="step1">
+          <div class="step-num">1</div>
+          <span>Chapter</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <span>Verse</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" id="step3">
+          <div class="step-num">3</div>
+          <span>Wisdom</span>
+        </div>
+      </div>
+
+      <!-- Chapter Selection -->
+      <div class="card" id="chapterCard">
+        <div class="card-title">Choose a Chapter</div>
+        <div class="chapter-grid" id="chapterGrid"></div>
+      </div>
+
+      <!-- Verse Selection -->
+      <div class="verse-area" id="verseArea">
+        <div class="card">
+          <div class="card-title">Choose a Verse</div>
+
+          <div class="selected-chapter-info" id="selectedChapterInfo"></div>
+
+          <div class="verse-label">
+            Select verse number (1 – <span id="verseMax">?</span>)
+          </div>
+          <div class="verse-grid" id="verseGrid"></div>
+
+          <div class="verse-input-row">
+            <span
+              style="
+                font-style: italic;
+                color: rgba(255, 255, 255, 0.4);
+                font-size: 0.9rem;
+              "
+              >or type:</span
+            >
+            <input
+              type="number"
+              class="verse-input"
+              id="verseInput"
+              min="1"
+              placeholder="No."
+            />
+            <button class="btn btn-primary" onclick="goToVerse()">Go →</button>
+            <span class="error-msg" id="verseError">Invalid verse number</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="result-area" id="resultArea">
+        <div class="result-card" id="resultCard"></div>
+        <div class="action-row">
+          <button class="btn btn-ghost" onclick="changeVerse()">
+            ← Change Verse
+          </button>
+          <button class="btn btn-ghost" onclick="changeChapter()">
+            ↩ Change Chapter
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const CHAPTERS = [
+        {
+          id: 1,
+          name: "अर्जुनविषादयोग",
+          slug: "chapter-1-arjuna-visada-yoga",
+          name_transliterated: "Arjun Viṣhād Yog",
+          name_translated: "Arjuna Visada Yoga",
+          verses_count: 47,
+          chapter_number: 1,
+          name_meaning: "Arjuna's Dilemma",
+          chapter_summary:
+            'The first chapter of the Bhagavad Gita - "Arjuna Vishada Yoga" introduces the setup, the setting, the characters and the circumstances that led to the epic battle of Mahabharata, fought between the Pandavas and the Kauravas. It outlines the reasons that led to the revelation of the of Bhagavad Gita.\nAs both armies stand ready for the battle, the mighty warrior Arjuna, on observing the warriors on both sides becomes increasingly sad and depressed due to the fear of losing his relatives and friends and the consequent sins attributed to killing his own relatives. So, he surrenders to Lord Krishna, seeking a solution. Thus, follows the wisdom of the Bhagavad Gita.',
+          chapter_summary_hindi:
+            "भगवद गीता का पहला अध्याय अर्जुन विशाद योग उन पात्रों और परिस्थितियों का परिचय कराता है जिनके कारण पांडवों और कौरवों के बीच महाभारत का महासंग्राम हुआ।",
+        },
+        {
+          id: 2,
+          name: "सांख्ययोग",
+          slug: "chapter-2-sankhya-yoga",
+          name_transliterated: "Sānkhya Yog",
+          name_translated: "Sankhya Yoga",
+          verses_count: 72,
+          chapter_number: 2,
+          name_meaning: "Transcendental Knowledge",
+          chapter_summary:
+            'The second chapter of the Bhagavad Gita is "Sankhya Yoga". This is the most important chapter of the Bhagavad Gita as Lord Krishna condenses the teachings of the entire Gita in this chapter. This chapter is the essence of the entire Gita.',
+          chapter_summary_hindi: "भगवद गीता का दूसरा अध्याय सांख्य योग है।",
+        },
+        {
+          id: 3,
+          name: "कर्मयोग",
+          slug: "chapter-3-karma-yoga",
+          name_transliterated: "Karm Yog",
+          name_translated: "Karma Yoga",
+          verses_count: 43,
+          chapter_number: 3,
+          name_meaning: "Path of Selfless Service",
+          chapter_summary:
+            'The third chapter of the Bhagavad Gita is "Karma Yoga" or the "Path of Selfless Service". Here Lord Krishna emphasizes the importance of karma in life.',
+          chapter_summary_hindi: "भगवद गीता का तीसरा अध्याय कर्मयोग है।",
+        },
+        {
+          id: 4,
+          name: "ज्ञानकर्मसंन्यासयोग",
+          slug: "chapter-4-jnana-karma-sanyasa-yoga",
+          name_transliterated: "Jñāna Karm Sanyās Yog",
+          name_translated: "Jnana Karma Sanyasa Yoga",
+          verses_count: 42,
+          chapter_number: 4,
+          name_meaning: "Path of Knowledge and the Disciplines of Action",
+          chapter_summary:
+            'The fourth chapter of the Bhagavad Gita is "Jnana Karma Sanyasa Yoga". In this chapter, Krishna glorifies the Karma Yoga and imparts the Transcendental Knowledge.',
+          chapter_summary_hindi:
+            "भगवद गीता का चौथा अध्याय ज्ञानकर्मसंन्यासयोग है।",
+        },
+        {
+          id: 5,
+          name: "कर्मसंन्यासयोग",
+          slug: "chapter-5-karma-sanyasa-yoga",
+          name_transliterated: "Karm Sanyās Yog",
+          name_translated: "Karma Sanyasa Yoga",
+          verses_count: 29,
+          chapter_number: 5,
+          name_meaning: "Path of Renunciation",
+          chapter_summary:
+            'The fifth chapter of the Bhagavad Gita is "Karma Sanyasa Yoga". In this chapter, Krishna compares the paths of renunciation in actions and actions with detachment.',
+          chapter_summary_hindi: "भगवद गीता का पांचवा अध्याय कर्मसन्यासयोग है।",
+        },
+        {
+          id: 6,
+          name: "ध्यानयोग",
+          slug: "chapter-6-dhyana-yoga",
+          name_transliterated: "Dhyān Yog",
+          name_translated: "Dhyana Yoga",
+          verses_count: 47,
+          chapter_number: 6,
+          name_meaning: "Path of Meditation",
+          chapter_summary:
+            'The sixth chapter of the Bhagavad Gita is "Dhyana Yoga". In this chapter, Krishna reveals the "Yoga of Meditation" and how to practise this Yoga.',
+          chapter_summary_hindi: "भगवद गीता का छठा अध्याय ध्यान योग है।",
+        },
+        {
+          id: 7,
+          name: "ज्ञानविज्ञानयोग",
+          slug: "chapter-7-gyaan-vigyana-yoga",
+          name_transliterated: "Jñāna Vijñāna Yog",
+          name_translated: "Gyaan Vigyana Yoga",
+          verses_count: 30,
+          chapter_number: 7,
+          name_meaning: "Self-Knowledge and Enlightenment",
+          chapter_summary:
+            'The seventh chapter of the Bhagavad Gita is "Gyaan Vigyana Yoga". In this chapter, Krishna reveals that he is the Supreme Truth.',
+          chapter_summary_hindi:
+            "भगवद गीता का सातवा अध्याय ज्ञानविज्ञानयोग है।",
+        },
+        {
+          id: 8,
+          name: "अक्षरब्रह्मयोग",
+          slug: "chapter-8-akshara-brahma-yoga",
+          name_transliterated: "Akṣhar Brahma Yog",
+          name_translated: "Akshara Brahma Yoga",
+          verses_count: 28,
+          chapter_number: 8,
+          name_meaning: "Path of the Eternal God",
+          chapter_summary:
+            'The eighth chapter of the Bhagavad Gita is "Akshara Brahma Yoga". In this chapter, Krishna reveals the importance of the last thought before death.',
+          chapter_summary_hindi: "भगवद गीता का आठवां अध्याय अक्षरब्रह्मयोग है।",
+        },
+        {
+          id: 9,
+          name: "राजविद्याराजगुह्ययोग",
+          slug: "chapter-9-raja-vidya-yoga",
+          name_transliterated: "Rāja Vidyā Yog",
+          name_translated: "Raja Vidya Yoga",
+          verses_count: 34,
+          chapter_number: 9,
+          name_meaning: "Yoga through the King of Sciences",
+          chapter_summary:
+            'The ninth chapter of the Bhagavad Gita is "Raja Vidya Yoga". In this chapter, Krishna explains that He is Supreme.',
+          chapter_summary_hindi:
+            "भगवद गीता का नौवां अध्याय राजविद्याराजगुह्ययोग है।",
+        },
+        {
+          id: 10,
+          name: "विभूतियोग",
+          slug: "chapter-10-vibhooti-yoga",
+          name_transliterated: "Vibhūti Yog",
+          name_translated: "Vibhooti Yoga",
+          verses_count: 42,
+          chapter_number: 10,
+          name_meaning:
+            "Yoga through Appreciating the Infinite Opulences of God",
+          chapter_summary:
+            'The tenth chapter of the Bhagavad Gita is "Vibhooti Yoga". In this chapter, Krishna reveals Himself as the cause of all causes.',
+          chapter_summary_hindi: "भगवद गीता का दसवां अध्याय विभूतियोग है।",
+        },
+        {
+          id: 11,
+          name: "विश्वरूपदर्शनयोग",
+          slug: "chapter-11-vishwaroopa-darshana-yoga",
+          name_transliterated: "Viśhwarūp Darśhan Yog",
+          name_translated: "Vishwaroopa Darshana Yoga",
+          verses_count: 55,
+          chapter_number: 11,
+          name_meaning: "Yoga through Beholding the Cosmic Form of God",
+          chapter_summary:
+            'The eleventh chapter of the Bhagavad Gita is "Vishwaroopa Darshana Yoga". Arjuna requests Krishna to reveal His Universal Cosmic Form.',
+          chapter_summary_hindi:
+            "भगवद गीता का ग्यारहवा अध्याय विश्वरूपदर्शनयोग है।",
+        },
+        {
+          id: 12,
+          name: "भक्तियोग",
+          slug: "chapter-12-bhakti-yoga",
+          name_transliterated: "Bhakti Yog",
+          name_translated: "Bhakti Yoga",
+          verses_count: 20,
+          chapter_number: 12,
+          name_meaning: "The Yoga of Devotion",
+          chapter_summary:
+            'The twelfth chapter of the Bhagavad Gita is "Bhakti Yoga". In this chapter, Krishna emphasizes the superiority of Bhakti Yoga over all other spiritual disciplines.',
+          chapter_summary_hindi: "भगवद गीता का बारहवां अध्याय भक्तियोग है।",
+        },
+        {
+          id: 13,
+          name: "क्षेत्र-क्षेत्रज्ञविभागयोग",
+          slug: "chapter-13-ksetra-ksetrajna-vibhaaga-yoga",
+          name_transliterated: "Kṣhetra Kṣhetrajña Vibhāg Yog",
+          name_translated: "Ksetra Ksetrajna Vibhaaga Yoga",
+          verses_count: 35,
+          chapter_number: 13,
+          name_meaning:
+            "Yoga through Distinguishing the Field and the Knower of the Field",
+          chapter_summary:
+            "The thirteenth chapter of the Bhagavad Gita discriminates between the physical body and the immortal soul.",
+          chapter_summary_hindi:
+            "भगवद गीता का तेरवाह अध्याय क्षेत्र-क्षेत्रज्ञविभागयोग है।",
+        },
+        {
+          id: 14,
+          name: "गुणत्रयविभागयोग",
+          slug: "chapter-14-gunatraya-vibhaga-yoga",
+          name_transliterated: "Guṇa Traya Vibhāg Yog",
+          name_translated: "Gunatraya Vibhaga Yoga",
+          verses_count: 27,
+          chapter_number: 14,
+          name_meaning:
+            "Yoga through Understanding the Three Modes of Material Nature",
+          chapter_summary:
+            "The fourteenth chapter of the Bhagavad Gita reveals the three gunas (modes) of material nature - goodness, passion and ignorance.",
+          chapter_summary_hindi:
+            "भगवद गीता का चौदहवा अध्याय गुणत्रयविभागयोग है।",
+        },
+        {
+          id: 15,
+          name: "पुरुषोत्तमयोग",
+          slug: "chapter-15-purushottama-yoga",
+          name_transliterated: "Puruṣhottam Yog",
+          name_translated: "Purushottama Yoga",
+          verses_count: 20,
+          chapter_number: 15,
+          name_meaning: "The Yoga of the Supreme Divine Personality",
+          chapter_summary:
+            "The fifteenth chapter of the Bhagavad Gita reveals the purpose of Transcendental Knowledge to detach from material bondage.",
+          chapter_summary_hindi:
+            "भगवद गीता का पंद्रहवा अध्याय पुरुषोत्तमयोग है।",
+        },
+        {
+          id: 16,
+          name: "दैवासुरसम्पद्विभागयोग",
+          slug: "chapter-16-daivasura-sampad-vibhaga-yoga",
+          name_transliterated: "Daivāsura Sampad Vibhāg Yog",
+          name_translated: "Daivasura Sampad Vibhaga Yoga",
+          verses_count: 24,
+          chapter_number: 16,
+          name_meaning:
+            "Yoga through Discerning the Divine and Demoniac Natures",
+          chapter_summary:
+            "The sixteenth chapter describes the two kinds of natures among human beings - divine and demoniac.",
+          chapter_summary_hindi:
+            "भगवद गीता का सोलहवा अध्याय दैवासुरसम्पद्विभागयोग है।",
+        },
+        {
+          id: 17,
+          name: "श्रद्धात्रयविभागयोग",
+          slug: "chapter-17-sraddhatraya-vibhaga-yoga",
+          name_transliterated: "Śhraddhā Traya Vibhāg Yog",
+          name_translated: "Sraddhatraya Vibhaga Yoga",
+          verses_count: 28,
+          chapter_number: 17,
+          name_meaning: "Yoga through Discerning the Three Divisions of Faith",
+          chapter_summary:
+            "The seventeenth chapter describes three types of faith corresponding to the three modes of material nature.",
+          chapter_summary_hindi:
+            "भगवद गीता का सत्रहवा अध्याय श्रद्धात्रयविभागयोग है।",
+        },
+        {
+          id: 18,
+          name: "मोक्षसंन्यासयोग",
+          slug: "chapter-18-moksha-sanyaas-yoga",
+          name_transliterated: "Mokṣha Sanyās Yog",
+          name_translated: "Moksha Sanyaas Yoga",
+          verses_count: 78,
+          chapter_number: 18,
+          name_meaning:
+            "Yoga through the Perfection of Renunciation and Surrender",
+          chapter_summary:
+            'The eighteenth chapter is "Moksha Sanyas Yoga". It contains Krishna\'s declaration that pure, unconditional loving service unto God is the highest path of spirituality.',
+          chapter_summary_hindi:
+            "भगवद गीता का अठारहवा अध्याय मोक्षसन्यासयोग है।",
+        },
+      ];
+
+      let selectedChapter = null;
+      let selectedVerse = null;
+
+      // Render chapters
+      function renderChapters() {
+        const grid = document.getElementById("chapterGrid");
+        grid.innerHTML = "";
+        CHAPTERS.forEach((ch) => {
+          const btn = document.createElement("button");
+          btn.className = "chapter-btn";
+          btn.innerHTML = `
+      <div class="ch-num">Chapter ${ch.chapter_number}</div>
+      <div class="ch-name">${ch.name_translated}</div>
+      <div class="ch-verses">${ch.verses_count} verses</div>
+    `;
+          btn.onclick = () => selectChapter(ch, btn);
+          grid.appendChild(btn);
+        });
+      }
+
+      function selectChapter(ch, btn) {
+        // Deselect all
+        document
+          .querySelectorAll(".chapter-btn")
+          .forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedChapter = ch;
+        selectedVerse = null;
+
+        // Update steps
+        document.getElementById("step1").classList.remove("active");
+        document.getElementById("step1").classList.add("done");
+        document.getElementById("step2").classList.add("active");
+        document.getElementById("step3").classList.remove("active", "done");
+
+        // Show verse area
+        renderVerseArea(ch);
+        document.getElementById("verseArea").classList.add("visible");
+        document.getElementById("resultArea").classList.remove("visible");
+        document
+          .getElementById("verseArea")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function renderVerseArea(ch) {
+        document.getElementById("verseMax").textContent = ch.verses_count;
+        document.getElementById("verseInput").max = ch.verses_count;
+        document.getElementById("verseInput").value = "";
+        document.getElementById("verseError").classList.remove("visible");
+
+        // Chapter info
+        document.getElementById("selectedChapterInfo").innerHTML = `
+    <div class="sel-ch-num">${ch.chapter_number}</div>
+    <div class="sel-ch-details">
+      <h3>${ch.name_translated}</h3>
+      <p>${ch.name} · ${ch.name_meaning}</p>
+    </div>
+  `;
+
+        // Verse buttons
+        const vGrid = document.getElementById("verseGrid");
+        vGrid.innerHTML = "";
+        for (let i = 1; i <= ch.verses_count; i++) {
+          const vbtn = document.createElement("button");
+          vbtn.className = "verse-btn";
+          vbtn.textContent = i;
+          vbtn.onclick = () => selectVerse(i, vbtn);
+          vGrid.appendChild(vbtn);
+        }
+      }
+
+      function selectVerse(num, btn) {
+        document
+          .querySelectorAll(".verse-btn")
+          .forEach((b) => b.classList.remove("selected"));
+        if (btn) btn.classList.add("selected");
+        selectedVerse = num;
+        showResult();
+      }
+
+      function goToVerse() {
+        const input = document.getElementById("verseInput");
+        const val = parseInt(input.value);
+        const err = document.getElementById("verseError");
+        if (
+          !selectedChapter ||
+          isNaN(val) ||
+          val < 1 ||
+          val > selectedChapter.verses_count
+        ) {
+          err.textContent = `Please enter a number between 1 and ${selectedChapter ? selectedChapter.verses_count : "?"}`;
+          err.classList.add("visible");
+          return;
+        }
+        err.classList.remove("visible");
+        // highlight matching verse btn
+        const btns = document.querySelectorAll(".verse-btn");
+        btns.forEach((b) => b.classList.remove("selected"));
+        if (btns[val - 1]) btns[val - 1].classList.add("selected");
+        selectVerse(val, null);
+      }
+
+      async function showResult() {
+        const ch = selectedChapter;
+        const v = selectedVerse;
+
+        document.getElementById("step2").classList.remove("active");
+        document.getElementById("step2").classList.add("done");
+        document.getElementById("step3").classList.add("active");
+
+        const rc = document.getElementById("resultCard");
+
+        // Show loading state
+        rc.innerHTML = `
+    <div style="text-align:center; padding: 40px 0; color: rgba(255,255,255,0.4);">
+      <div class="spinner"></div>
+      <span style="font-style:italic;">Fetching verse ${v} from Chapter ${ch.chapter_number}...</span>
+    </div>
+  `;
+        document.getElementById("resultArea").classList.add("visible");
+        document
+          .getElementById("resultArea")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+
+        try {
+          const response = await fetch(
+            `https://bhagavad-gita3.p.rapidapi.com/v2/chapters/${ch.chapter_number}/verses/${v}/`,
+            {
+              method: "GET",
+              headers: {
+                "x-rapidapi-host": "bhagavad-gita3.p.rapidapi.com",
+                "x-rapidapi-key":
+                  "5b5cbb023bmsh5890033fdeb8d57p1094a0jsn615c226a0865",
+              },
+            },
+          );
+
+          if (!response.ok) throw new Error("API error: " + response.status);
+          const data = await response.json();
+
+          // Extract translations
+          const englishTranslation = data.translations?.find(
+            (t) => t.language === "english",
+          );
+          const hindiTranslation = data.translations?.find(
+            (t) => t.language === "hindi",
+          );
+          const translationText =
+            englishTranslation?.description ||
+            hindiTranslation?.description ||
+            "Translation not available.";
+          const translatorName = englishTranslation?.author_name || "";
+
+          // Extract commentaries
+          const commentary = data.commentaries?.[0];
+          const commentaryText = commentary?.description || "";
+          const commentaryAuthor = commentary?.author_name || "";
+
+          rc.innerHTML = `
+      <div class="result-header">
+        <div>
+          <div class="result-hindi">${ch.name}</div>
+          <div class="result-transliterated">${ch.name_transliterated} · Verse ${v}</div>
+        </div>
+        <div class="result-badge">
+          <div class="badge-dot"></div>
+          <span class="badge-text">Ch ${ch.chapter_number} · V ${v}</span>
+        </div>
+      </div>
+
+      ${
+        data.text
+          ? `
+      <div class="result-meaning-label">Sanskrit Shloka</div>
+      <div class="result-hindi" style="font-size:1.2rem; line-height:1.8; margin-bottom:6px;">${data.text}</div>
+      `
+          : ""
+      }
+
+      ${
+        data.transliteration
+          ? `
+      <div class="result-transliterated" style="margin-bottom:20px;">${data.transliteration}</div>
+      `
+          : ""
+      }
+
+      <div class="summary-box" style="border-top: 1px solid rgba(200,134,10,0.2); padding-top:20px; margin-top:8px;">
+        <div class="result-meaning-label">Translation ${translatorName ? "· " + translatorName : ""}</div>
+        <div class="summary-text" style="font-size:1.1rem; line-height:1.9;">${translationText}</div>
+      </div>
+
+      ${
+        commentaryText
+          ? `
+      <div class="summary-box" style="border-top: 1px solid rgba(200,134,10,0.15); padding-top:20px; margin-top:20px;">
+        <div class="result-meaning-label">Commentary ${commentaryAuthor ? "· " + commentaryAuthor : ""}</div>
+        <div class="summary-text" style="opacity:0.75; font-size:0.98rem; line-height:1.8;">${commentaryText}</div>
+      </div>
+      `
+          : ""
+      }
+    `;
+        } catch (err) {
+          rc.innerHTML = `
+      <div style="text-align:center; padding:30px;">
+        <div style="color:#ff6b6b; font-size:1.1rem; margin-bottom:10px;">⚠ Could not fetch verse</div>
+        <div style="color:rgba(255,255,255,0.4); font-style:italic; font-size:0.9rem;">${err.message}</div>
+        <div style="margin-top:16px; color:rgba(255,255,255,0.3); font-size:0.85rem;">Chapter ${ch.chapter_number} · Verse ${v}</div>
+      </div>
+    `;
+        }
+      }
+
+      function changeVerse() {
+        selectedVerse = null;
+        document.getElementById("step3").classList.remove("active", "done");
+        document.getElementById("step2").classList.remove("done");
+        document.getElementById("step2").classList.add("active");
+        document.getElementById("resultArea").classList.remove("visible");
+        document
+          .querySelectorAll(".verse-btn")
+          .forEach((b) => b.classList.remove("selected"));
+        document
+          .getElementById("verseArea")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function changeChapter() {
+        selectedChapter = null;
+        selectedVerse = null;
+        document.getElementById("step1").classList.remove("done");
+        document.getElementById("step1").classList.add("active");
+        document.getElementById("step2").classList.remove("active", "done");
+        document.getElementById("step3").classList.remove("active", "done");
+        document.getElementById("verseArea").classList.remove("visible");
+        document.getElementById("resultArea").classList.remove("visible");
+        document
+          .querySelectorAll(".chapter-btn")
+          .forEach((b) => b.classList.remove("selected"));
+        document
+          .getElementById("chapterCard")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      renderChapters();
+    </script>
+  </body>
+</html>
